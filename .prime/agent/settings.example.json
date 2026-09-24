@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "example-service": {
+      "type": "http",
+      "url": "https://mcp.example.invalid/mcp",
+      "bearerTokenEnvVar": "EXAMPLE_SERVICE_TOKEN",
+      "enabled": false
+    }
+  }
+}

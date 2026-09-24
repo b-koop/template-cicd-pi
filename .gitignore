@@ -1,0 +1,10 @@
+# Local credentials and environment files
+.env
+.env.*
+!.env.example
+.prime/agent/auth.json
+.prime/agent/settings.local.json
+
+# Deno and editor state
+.deno/
+.DS_Store
