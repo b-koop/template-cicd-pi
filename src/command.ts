@@ -12,6 +12,7 @@ export function buildAgentInvocation(
   const invocation = ["pi", "--print", "--no-session", "--approve"];
 
   if (workflow.model) invocation.push("--model", workflow.model);
+  if (workflow.thinking) invocation.push("--thinking", workflow.thinking);
   if (workflow.tools) {
     if (workflow.tools.length === 0) invocation.push("--no-tools");
     else invocation.push("--tools", workflow.tools.join(","));

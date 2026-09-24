@@ -73,10 +73,12 @@ example:
    credential from its normal credential flow or environment variable.
 7. Pi runs the prompt in print mode and forwards its output.
 
-The generated command includes `--no-session`, `--approve`, and the configured
-tool policy. The example uses `--no-tools` because hello-world does not need
-file or shell access. Change the `tools` list in the workflow config when a
-workflow genuinely needs tools.
+The generated command includes `--no-session`, `--approve`, the configured
+thinking level, and the configured tool policy. Thinking level is optional and
+accepts `off`, `minimal`, `low`, `medium`, `high`, `xhigh`, or `max`. If it is
+unset, the CLI keeps its own default. The example uses `--no-tools` because
+hello-world does not need file or shell access. Change the `tools` list in the
+workflow config when a workflow genuinely needs tools.
 
 Use `--dry-run` whenever you want to inspect the invocation without starting
 Pi:
@@ -94,6 +96,7 @@ The example configuration is deliberately declarative:
   "name": "hello-world",
   "prompt": "hello-world: use the example-skill and respond with exactly: Hello, world!",
   "model": "anthropic/claude-sonnet-4-5",
+  "thinking": "medium",
   "tools": [],
   "skill": "example-skill",
   "skillPath": "examples/skills/example-skill/SKILL.md",
@@ -107,7 +110,9 @@ To create another workflow:
 
 1. Copy `examples/workflow.json`.
 2. Give it a new name and prompt.
-3. Add or remove skills, extensions, tools, and connections.
+3. Choose a thinking level only when the workflow needs to override the CLI
+   default.
+4. Add or remove skills, extensions, tools, and connections.
 4. Add a Deno task or entry point that loads the new config.
 5. Run the dry-run command before enabling model access.
 

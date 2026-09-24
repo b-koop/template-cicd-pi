@@ -42,3 +42,79 @@ Deno.test("the workflow launches pi without placing API-key values in its comman
     "the invocation should not contain API-key values",
   );
 });
+
+type ThinkingWorkflow =
+  & Awaited<ReturnType<typeof loadExampleWorkflowConfig>>
+  & {
+    thinking?: string;
+  };
+
+const supportedThinkingLevels = new Set([
+  "off",
+  "minimal",
+  "low",
+  "medium",
+  "high",
+  "xhigh",
+  "max",
+]);
+
+Deno.test("the example workflow declares a supported thinking level", async () => {
+  const config = await loadExampleWorkflowConfig() as ThinkingWorkflow;
+
+  assert(
+    typeof config.thinking === "string" &&
+      supportedThinkingLevels.has(config.thinking),
+    "the example workflow should declare a supported thinking level",
+  );
+});
+
+Deno.test("the invocation passes a configured thinking level and omits it when unset", async () => {
+  const config = await loadExampleWorkflowConfig();
+  const configured = { ...config, thinking: "high" } as ThinkingWorkflow;
+  const configuredInvocation = buildAgentInvocation(configured);
+  const thinkingFlag = configuredInvocation.indexOf("--thinking");
+
+  assert(
+    thinkingFlag >= 0,
+    "the invocation should include the thinking flag when configured",
+  );
+  assert(
+    configuredInvocation[thinkingFlag + 1] === "high",
+    "the invocation should pass the configured thinking level",
+  );
+
+  const unset = { ...config } as ThinkingWorkflow;
+  delete unset.thinking;
+  const unsetInvocation = buildAgentInvocation(unset);
+  assert(
+    !unsetInvocation.includes("--thinking"),
+    "the invocation should omit the thinking flag when it is unset",
+  );
+});
+
+Deno.test("the workflow loader rejects an unsupported thinking level", async () => {
+  const config = await loadExampleWorkflowConfig();
+  const invalidConfigUrl = await Deno.makeTempFile({ suffix: ".json" });
+
+  try {
+    await Deno.writeTextFile(
+      invalidConfigUrl,
+      JSON.stringify({ ...config, thinking: "unsupported" }),
+    );
+
+    let rejected = false;
+    try {
+      await loadExampleWorkflowConfig(new URL(`file://${invalidConfigUrl}`));
+    } catch {
+      rejected = true;
+    }
+
+    assert(
+      rejected,
+      "the workflow loader should reject unsupported thinking levels",
+    );
+  } finally {
+    await Deno.remove(invalidConfigUrl);
+  }
+});

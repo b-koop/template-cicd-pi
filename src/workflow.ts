@@ -1,7 +1,27 @@
+export type ThinkingLevel =
+  | "off"
+  | "minimal"
+  | "low"
+  | "medium"
+  | "high"
+  | "xhigh"
+  | "max";
+
+const thinkingLevels: ReadonlySet<string> = new Set([
+  "off",
+  "minimal",
+  "low",
+  "medium",
+  "high",
+  "xhigh",
+  "max",
+]);
+
 export type ExampleWorkflowConfig = {
   name: string;
   prompt: string;
   model?: string;
+  thinking?: ThinkingLevel;
   tools?: string[];
   skill: string;
   skillPath: string;
@@ -28,6 +48,13 @@ export async function loadExampleWorkflowConfig(
     typeof config.connectionsPath !== "string"
   ) {
     throw new Error("Workflow config is missing a required string field");
+  }
+
+  if (
+    config.thinking !== undefined &&
+    (typeof config.thinking !== "string" || !thinkingLevels.has(config.thinking))
+  ) {
+    throw new Error(`Unsupported thinking level: ${String(config.thinking)}`);
   }
 
   return config as ExampleWorkflowConfig;

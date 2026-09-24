@@ -2,6 +2,7 @@
   "name": "hello-world",
   "prompt": "hello-world: use the example-skill and respond with exactly: Hello, world!",
   "model": "anthropic/claude-sonnet-4-5",
+  "thinking": "medium",
   "skill": "example-skill",
   "skillPath": "examples/skills/example-skill/SKILL.md",
   "extension": "example-extension",
