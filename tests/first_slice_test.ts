@@ -15,7 +15,10 @@ Deno.test("the example workflow loads its hello-world prompt, skill, and extensi
     typeof config.prompt === "string" && config.prompt.includes("hello-world"),
     "the example workflow should contain a hello-world prompt",
   );
-  assert(config.skill === "example-skill", "the example workflow should reference the example skill");
+  assert(
+    config.skill === "example-skill",
+    "the example workflow should reference the example skill",
+  );
   assert(
     config.extension === "example-extension",
     "the example workflow should reference the example extension",
@@ -34,12 +37,41 @@ Deno.test("the workflow launches pi without placing API-key values in its comman
   );
 
   assert(invocation[0] === "pi", "the invocation should launch pi");
-  assert(invocation.includes("hello-world"), "the invocation should carry the prompt");
-  assert(invocation.includes("example-skill"), "the invocation should carry the skill");
-  assert(invocation.includes("example-extension"), "the invocation should carry the extension");
+  assert(
+    invocation.includes("hello-world"),
+    "the invocation should carry the prompt",
+  );
+  assert(
+    invocation.includes("example-skill"),
+    "the invocation should carry the skill",
+  );
+  assert(
+    invocation.includes("example-extension"),
+    "the invocation should carry the extension",
+  );
   assert(
     invocation.every((argument) => !argument.includes(apiKey)),
     "the invocation should not contain API-key values",
+  );
+});
+
+Deno.test("the invocation forwards an optional provider separately from its model", async () => {
+  const config = await loadExampleWorkflowConfig();
+  const invocation = buildAgentInvocation({
+    ...config,
+    provider: "openrouter",
+    model: "z-ai/glm-latest",
+  });
+  const providerFlag = invocation.indexOf("--provider");
+
+  assert(providerFlag >= 0, "the invocation should include the provider flag");
+  assert(
+    invocation[providerFlag + 1] === "openrouter",
+    "the invocation should pass the provider",
+  );
+  assert(
+    invocation.includes("z-ai/glm-latest"),
+    "the invocation should pass the provider model",
   );
 });
 

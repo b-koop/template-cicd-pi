@@ -20,6 +20,7 @@ const thinkingLevels: ReadonlySet<string> = new Set([
 export type ExampleWorkflowConfig = {
   name: string;
   prompt: string;
+  provider?: string;
   model?: string;
   thinking?: ThinkingLevel;
   tools?: string[];
@@ -41,6 +42,8 @@ export async function loadExampleWorkflowConfig(
   if (
     typeof config.name !== "string" ||
     typeof config.prompt !== "string" ||
+    (config.provider !== undefined &&
+      (typeof config.provider !== "string" || config.provider.trim() === "")) ||
     typeof config.skill !== "string" ||
     typeof config.skillPath !== "string" ||
     typeof config.extension !== "string" ||
@@ -52,7 +55,8 @@ export async function loadExampleWorkflowConfig(
 
   if (
     config.thinking !== undefined &&
-    (typeof config.thinking !== "string" || !thinkingLevels.has(config.thinking))
+    (typeof config.thinking !== "string" ||
+      !thinkingLevels.has(config.thinking))
   ) {
     throw new Error(`Unsupported thinking level: ${String(config.thinking)}`);
   }
