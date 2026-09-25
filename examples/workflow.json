@@ -1,6 +1,6 @@
 {
   "name": "hello-world",
-  "prompt": "hello-world: use the example-skill and respond with exactly: Hello, world!",
+  "promptPath": "prompts/hello-world.md",
   "model": "anthropic/claude-sonnet-4-5",
   "thinking": "medium",
   "skill": "example-skill",

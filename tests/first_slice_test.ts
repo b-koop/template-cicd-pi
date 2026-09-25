@@ -12,8 +12,13 @@ Deno.test("the example workflow loads its hello-world prompt, skill, and extensi
   const config = await loadExampleWorkflowConfig();
 
   assert(
-    typeof config.prompt === "string" && config.prompt.includes("hello-world"),
-    "the example workflow should contain a hello-world prompt",
+    config.promptPath === "prompts/hello-world.md",
+    "the example workflow should reference the prompt file",
+  );
+  assert(
+    typeof config.prompt === "string" &&
+      config.prompt.includes("Hello, world!"),
+    "the loader should read the hello-world prompt file",
   );
   assert(
     config.skill === "example-skill",
