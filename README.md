@@ -263,8 +263,10 @@ Connection setup should follow this rule:
 
 `.github/workflows/hello-world.yml` has two intentionally different paths:
 
-- Every pull request runs `deno task hello:dry-run`. This validates the config
-  without sending credentials to code from a pull request.
+- Every pull request installs the CLI without credentials, verifies
+  `pi
+  --version`, and runs `deno task hello:dry-run`. This validates the setup
+  and config without sending credentials to code from a pull request.
 - A manual workflow run installs Pi and executes the live hello-world workflow
   using the configured repository secret.
 

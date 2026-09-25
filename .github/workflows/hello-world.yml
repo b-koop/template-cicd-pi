@@ -20,6 +20,17 @@ jobs:
         with:
           deno-version: v2.x
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install the agent CLI without credentials
+        run: npm install --global --ignore-scripts @earendil-works/pi-coding-agent
+
+      - name: Verify the agent CLI setup
+        run: pi --version
+
       - name: Validate the example invocation
         run: deno task hello:dry-run
 
