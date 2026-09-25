@@ -20,6 +20,7 @@ const thinkingLevels: ReadonlySet<string> = new Set([
 export type ExampleWorkflowConfig = {
   name: string;
   prompt: string;
+  promptPath?: string;
   provider?: string;
   model?: string;
   thinking?: ThinkingLevel;
@@ -41,7 +42,12 @@ export async function loadExampleWorkflowConfig(
 
   if (
     typeof config.name !== "string" ||
-    typeof config.prompt !== "string" ||
+    (config.prompt !== undefined && typeof config.prompt !== "string") ||
+    (config.promptPath !== undefined &&
+      (typeof config.promptPath !== "string" ||
+        config.promptPath.trim() === "")) ||
+    (typeof config.prompt !== "string" &&
+      typeof config.promptPath !== "string") ||
     (config.provider !== undefined &&
       (typeof config.provider !== "string" || config.provider.trim() === "")) ||
     typeof config.skill !== "string" ||
@@ -61,5 +67,9 @@ export async function loadExampleWorkflowConfig(
     throw new Error(`Unsupported thinking level: ${String(config.thinking)}`);
   }
 
-  return config as ExampleWorkflowConfig;
+  const prompt = typeof config.prompt === "string"
+    ? config.prompt
+    : await Deno.readTextFile(new URL(config.promptPath!, configUrl));
+
+  return { ...config, prompt } as ExampleWorkflowConfig;
 }
