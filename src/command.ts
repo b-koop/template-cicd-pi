@@ -5,12 +5,15 @@ export type Credentials = {
 };
 
 export function buildAgentInvocation(
-  config: ExampleWorkflowConfig | Pick<ExampleWorkflowConfig, "prompt" | "skill" | "extension">,
+  config:
+    | ExampleWorkflowConfig
+    | Pick<ExampleWorkflowConfig, "prompt" | "skill" | "extension">,
   _credentials: Credentials = {},
 ): string[] {
   const workflow = config as Partial<ExampleWorkflowConfig>;
   const invocation = ["pi", "--print", "--no-session", "--approve"];
 
+  if (workflow.provider) invocation.push("--provider", workflow.provider);
   if (workflow.model) invocation.push("--model", workflow.model);
   if (workflow.thinking) invocation.push("--thinking", workflow.thinking);
   if (workflow.tools) {
@@ -18,7 +21,10 @@ export function buildAgentInvocation(
     else invocation.push("--tools", workflow.tools.join(","));
   }
   invocation.push("--skill", workflow.skillPath ?? workflow.skill ?? "");
-  invocation.push("--extension", workflow.extensionPath ?? workflow.extension ?? "");
+  invocation.push(
+    "--extension",
+    workflow.extensionPath ?? workflow.extension ?? "",
+  );
   invocation.push("--", workflow.prompt ?? "");
 
   return invocation;

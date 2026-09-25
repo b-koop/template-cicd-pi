@@ -1,7 +1,7 @@
 {
   "tasks": {
-    "hello": "deno run --allow-read --allow-env=PI_MODEL --allow-run=pi src/main.ts",
-    "hello:dry-run": "deno run --allow-read --allow-env=PI_MODEL src/main.ts --dry-run",
+    "hello": "deno run --allow-read --allow-env=PI_PROVIDER,PI_MODEL --allow-run=pi src/main.ts",
+    "hello:dry-run": "deno run --allow-read --allow-env=PI_PROVIDER,PI_MODEL src/main.ts --dry-run",
     "test": "deno test --allow-read --allow-write",
     "check": "deno check src/main.ts src/workflow.ts src/command.ts tests/first_slice_test.ts"
   }

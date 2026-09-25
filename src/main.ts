@@ -19,9 +19,16 @@ export async function runWorkflow(
   execute: CommandExecutor = executeCommand,
 ): Promise<number> {
   const config = await loadExampleWorkflowConfig();
+  const provider = Deno.env.get("PI_PROVIDER");
   const model = Deno.env.get("PI_MODEL");
   const invocation = buildAgentInvocation(
-    model ? { ...config, model } : config,
+    provider || model
+      ? {
+        ...config,
+        ...(provider ? { provider } : {}),
+        ...(model ? { model } : {}),
+      }
+      : config,
   );
   const [command, ...commandArgs] = invocation;
 

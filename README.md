@@ -1,8 +1,8 @@
 # template-cicd-pi
 
 A small public template for setting up reusable AI workflows with Pi. It keeps
-workflow configuration, prompts, skills, extensions, and external connections
-in one project so a new workflow can start from a working hello-world example.
+workflow configuration, prompts, skills, extensions, and external connections in
+one project so a new workflow can start from a working hello-world example.
 
 This repository does not contain API keys, provider-specific business logic, or
 an automated code-review product. Replace the examples with the workflow your
@@ -37,14 +37,66 @@ export PI_MODEL="anthropic/claude-sonnet-4-5"
 
 Do not commit `.env`, credential files, or real secret values.
 
+### Common provider setups
+
+The workflow supports separate `provider` and `model` values. Set them in
+`examples/workflow.json`, or override them locally with `PI_PROVIDER` and
+`PI_MODEL`:
+
+#### Direct provider API
+
+```sh
+export PI_PROVIDER="anthropic"
+export PI_MODEL="anthropic/claude-sonnet-4-5"
+export ANTHROPIC_API_KEY="..."
+```
+
+#### OpenAI
+
+```sh
+export PI_PROVIDER="openai"
+export PI_MODEL="openai/gpt-4.1-mini"
+export OPENAI_API_KEY="..."
+```
+
+#### OpenRouter
+
+OpenRouter uses its own provider key and usually a bare routed model ID:
+
+```sh
+export PI_PROVIDER="openrouter"
+export PI_MODEL="z-ai/glm-latest"
+export OPENROUTER_API_KEY="..."
+```
+
+#### Google Gemini
+
+```sh
+export PI_PROVIDER="google"
+export PI_MODEL="google/gemini-2.5-flash"
+export GEMINI_API_KEY="..."
+```
+
+#### Local or custom OpenAI-compatible endpoints
+
+Configure the custom provider and base URL in Pi's user-level model settings,
+then set `PI_PROVIDER`, `PI_MODEL`, and the provider's documented credential
+variable. Keep that user-level configuration outside this repository when it
+contains machine-specific URLs or credentials.
+
+The provider-specific environment variable is inherited by the child process.
+The Deno entry point does not convert credentials into `--api-key` arguments. If
+a provider's model catalog or credential variable differs, use that provider's
+Pi documentation as the source of truth.
+
 ### 3. Validate the example workflow
 
 ```sh
 deno task hello:dry-run
 ```
 
-This prints the exact command shape without contacting a model. It should show
-a `pi --print` invocation with the example skill and extension.
+This prints the exact command shape without contacting a model. It should show a
+`pi --print` invocation with the example skill and extension.
 
 ### 4. Run the hello-world workflow
 
@@ -65,7 +117,8 @@ Hello, world!
 example:
 
 1. Deno reads `examples/workflow.json`.
-2. `PI_MODEL` overrides the model in that file when it is set.
+2. `PI_PROVIDER` and `PI_MODEL` override the provider and model in that file
+   when they are set.
 3. `src/command.ts` builds a safe argument list.
 4. The entry point starts `pi` with `Deno.Command`.
 5. Pi loads the selected skill and extension.
@@ -80,11 +133,10 @@ unset, the CLI keeps its own default. The example uses `--no-tools` because
 hello-world does not need file or shell access. Change the `tools` list in the
 workflow config when a workflow genuinely needs tools.
 
-Use `--dry-run` whenever you want to inspect the invocation without starting
-Pi:
+Use `--dry-run` whenever you want to inspect the invocation without starting Pi:
 
 ```sh
-deno run --allow-read --allow-env=PI_MODEL src/main.ts --dry-run
+deno run --allow-read --allow-env=PI_PROVIDER,PI_MODEL src/main.ts --dry-run
 ```
 
 ## Workflow configuration
@@ -113,8 +165,8 @@ To create another workflow:
 3. Choose a thinking level only when the workflow needs to override the CLI
    default.
 4. Add or remove skills, extensions, tools, and connections.
-4. Add a Deno task or entry point that loads the new config.
-5. Run the dry-run command before enabling model access.
+5. Add a Deno task or entry point that loads the new config.
+6. Run the dry-run command before enabling model access.
 
 ## Customizing prompts
 
@@ -177,8 +229,8 @@ an unreviewed extension alongside production credentials.
 
 ## Connections and API keys
 
-`examples/connections.example.json` shows a generic external connection. It
-uses an environment-variable reference rather than a literal token:
+`examples/connections.example.json` shows a generic external connection. It uses
+an environment-variable reference rather than a literal token:
 
 ```json
 {
@@ -196,14 +248,14 @@ uses an environment-variable reference rather than a literal token:
 Copy the connection definition into your local Pi settings and export the
 referenced variable before starting a workflow. The Deno entry point does not
 modify user settings or start connections itself. The repository's
-`.prime/agent/settings.example.json` is documentation only; it is not a place
-to store credentials.
+`.prime/agent/settings.example.json` is documentation only; it is not a place to
+store credentials.
 
 Connection setup should follow this rule:
 
 - URLs and non-secret settings may be committed.
-- Tokens must be environment-variable references or a supported credential
-  store entry.
+- Tokens must be environment-variable references or a supported credential store
+  entry.
 - Literal secrets must never appear in JSON, TypeScript, shell commands, logs,
   workflow arguments, or pull requests.
 
@@ -211,14 +263,16 @@ Connection setup should follow this rule:
 
 `.github/workflows/hello-world.yml` has two intentionally different paths:
 
-- Every pull request runs `deno task hello:dry-run`. This validates the config
-  without sending credentials to code from a pull request.
+- Every pull request installs the CLI without credentials, verifies
+  `pi
+  --version`, and runs `deno task hello:dry-run`. This validates the setup
+  and config without sending credentials to code from a pull request.
 - A manual workflow run installs Pi and executes the live hello-world workflow
   using the configured repository secret.
 
 This split gives the repository a safe pull-request check while keeping the
-model-backed example available when explicitly requested. If you change the
-live job for automatic pull-request execution, review the trust boundary first.
+model-backed example available when explicitly requested. If you change the live
+job for automatic pull-request execution, review the trust boundary first.
 
 ## Project layout
 
@@ -244,5 +298,6 @@ deno task test
 deno task hello:dry-run
 ```
 
-The Deno entry point requires only read access, the `PI_MODEL` environment
-variable, and permission to execute `pi` when running the live workflow.
+The Deno entry point requires only read access, the optional `PI_PROVIDER` and
+`PI_MODEL` environment variables, and permission to execute `pi` when running
+the live workflow.
